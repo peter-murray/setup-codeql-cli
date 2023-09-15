@@ -27,7 +27,6 @@ export async function fetchBundleVersions(apiClient: any): Promise<Release []> {
   });
 }
 
-
 export async function matchBundleVersion(apiClient: any, version: string): Promise<Release | undefined> {
   const releases = await fetchBundleVersions(apiClient);
 

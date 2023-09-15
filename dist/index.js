@@ -185,8 +185,10 @@ function run() {
             const token = getRequiredInputValue('token');
             const version = core.getInput('version') || 'latest';
             const apiClient = (0, github_1.getOctokit)(token);
+            core.info(`Searching for CodeQL release ${version}`);
             const path = yield (0, toolcache_1.getCodeQLCachePath)(apiClient, version);
             if (path) {
+                core.info(`CodeQL release ${version} found at ${path}`);
                 core.addPath(path);
                 core.setOutput('codeql_path', path);
             }

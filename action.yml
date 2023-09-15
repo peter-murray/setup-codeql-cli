@@ -6,10 +6,15 @@ inputs:
     description: 'The GitHub token to use for authentication'
     required: false
     default: ${{ github.token }}
+
   version:
     description: The version number for the CodeQL CLI bundle to download (e.g. 2.14.5 or 'latest')
     default: latest
     required: false
+
+outputs:
+  codeql_path:
+    description: The path to the CodeQL CLI executable
 
 runs:
   using: node16

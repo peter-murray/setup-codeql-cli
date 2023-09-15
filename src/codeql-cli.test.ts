@@ -6,6 +6,7 @@ import {
   matchBundleVersion
 } from './codeql-cli';
 import * as github from '@actions/github';
+import { fail } from 'assert';
 
 
 describe('codeql-cli', () => {
@@ -22,11 +23,19 @@ describe('codeql-cli', () => {
 
   describe('#matchBundleVersion', () => {
 
-    test('should return a release when given a valid version', async () => {
-      const versionNumber = '2.14.0';
-      const version = await matchBundleVersion(apiClient, versionNumber);
-      expect(version).toBeDefined();
-      expect(version?.getTag()).toBe(`codeql-bundle-v${versionNumber}`);
+    ['2.14.0', '2.13.5'].forEach((versionNumber) => {
+
+      test(`should return a release when given a valid version ${versionNumber}`, async () => {
+        const version = await matchBundleVersion(apiClient, versionNumber);
+        expect(version).toBeDefined();
+        expect(version?.getTag()).toBe(`codeql-bundle-v${versionNumber}`);
+      });
+
+    });
+
+    test(`should fail a release when given an invalid version`, async () => {
+      const version = await matchBundleVersion(apiClient, '1.0.6');
+      expect(version).toBeUndefined();
     });
   });
 

@@ -8,8 +8,10 @@ async function run(): Promise<void> {
     const version = core.getInput('version') || 'latest';
 
     const apiClient = getOctokit(token);
+    core.info(`Searching for CodeQL release ${version}`);
     const path = await getCodeQLCachePath(apiClient, version);
     if (path) {
+      core.info(`CodeQL release ${version} found at ${path}`);
       core.addPath(path);
       core.setOutput('codeql_path', path);
     }
