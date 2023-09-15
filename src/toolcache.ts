@@ -1,7 +1,10 @@
 import * as os from 'os';
+import path from 'path';
+import fs from 'fs';
 
 import * as tc from '@actions/tool-cache';
 import * as codeqlCli from './codeql-cli';
+
 
 const TOOLCACHE_CODEQL_NAME = 'CodeQL';
 
@@ -40,6 +43,16 @@ export async function getCodeQLCachePath(apiClient: any, version: string, arch: 
     const cachedBundleDirectory = await tc.cacheDir(extractedBundleDirectory, TOOLCACHE_CODEQL_NAME, codeqlBundleVersion, arch);
 
     versionPath = cachedBundleDirectory;
+  }
+
+  if (versionPath) {
+    // get the path to the codeql executable
+    const codeql = path.join(versionPath, 'codeql');
+    const stats = fs.statSync(codeql);
+    if (!stats.isDirectory) {
+      throw new Error(`CodeQL bundle directory is not a directory: ${codeql}`);
+    }
+    versionPath = codeql;
   }
 
   return versionPath;

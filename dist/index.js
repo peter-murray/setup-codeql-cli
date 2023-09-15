@@ -243,9 +243,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getCodeQLCachePath = void 0;
 const os = __importStar(__nccwpck_require__(2037));
+const path_1 = __importDefault(__nccwpck_require__(1017));
+const fs_1 = __importDefault(__nccwpck_require__(7147));
 const tc = __importStar(__nccwpck_require__(2886));
 const codeqlCli = __importStar(__nccwpck_require__(706));
 const TOOLCACHE_CODEQL_NAME = 'CodeQL';
@@ -278,6 +283,15 @@ function getCodeQLCachePath(apiClient, version, arch = 'x64') {
             // Cache the bundle for future use
             const cachedBundleDirectory = yield tc.cacheDir(extractedBundleDirectory, TOOLCACHE_CODEQL_NAME, codeqlBundleVersion, arch);
             versionPath = cachedBundleDirectory;
+        }
+        if (versionPath) {
+            // get the path to the codeql executable
+            const codeql = path_1.default.join(versionPath, 'codeql');
+            const stats = fs_1.default.statSync(codeql);
+            if (!stats.isDirectory) {
+                throw new Error(`CodeQL bundle directory is not a directory: ${codeql}`);
+            }
+            versionPath = codeql;
         }
         return versionPath;
     });
