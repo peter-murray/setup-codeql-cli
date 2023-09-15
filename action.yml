@@ -1,0 +1,16 @@
+name: CodeQL setup action
+description: Sets up the CodeQL executable, separate from the codeql-action's init action so as to provide only the command line tool.
+
+inputs:
+  token:
+    description: 'The GitHub token to use for authentication'
+    required: false
+    default: ${{ github.token }}
+  version:
+    description: The version number for the CodeQL CLI bundle to download (e.g. 2.14.5 or 'latest')
+    default: latest
+    required: false
+
+runs:
+  using: node16
+  main: dist/index.js

@@ -1,9 +1,13 @@
-import * as tc from '@actions/tool-cache';
 import * as semver from 'semver';
 
 const RELEASE_BUNDLE_REGEX = /codeql-bundle-v(.*)/;
 const RELEASE_BUNDLE_VARIANT_REGEX = /codeql-bundle-(linux|win|osx)(64).tar.gz/;
 const RELEASE_BUNDLE_ALL_REGEX = /codeql-bundle.tar.gz/;
+
+export type ReleaseVersion = {
+  version: string,
+  prerelease: boolean
+}
 
 export async function fetchBundleVersions(apiClient: any): Promise<Release []> {
   const allReleases = await apiClient.paginate({
@@ -24,7 +28,7 @@ export async function fetchBundleVersions(apiClient: any): Promise<Release []> {
 }
 
 
-export async function matchBundleVersion(apiClient: any, version: string) {
+export async function matchBundleVersion(apiClient: any, version: string): Promise<Release | undefined> {
   const releases = await fetchBundleVersions(apiClient);
 
   const matchedRelease = releases.find((release) => {
@@ -34,28 +38,28 @@ export async function matchBundleVersion(apiClient: any, version: string) {
   return matchedRelease;
 }
 
-export async function fetchAllVersions(apiClient: any, allowPrerelease: boolean = false): Promise<{version: string, prerelease: boolean}[]> {
+export async function fetchAllVersions(apiClient: any, allowPrerelease: boolean = false): Promise<ReleaseVersion[]> {
   const releases = await fetchBundleVersions(apiClient);
 
-  const allVersions = releases.map((release) => {
+  const allVersions: ReleaseVersion[] = releases.reduce((versions: ReleaseVersion[], release: Release) => {
     const version = release.getVersion();
     if (version) {
       if (allowPrerelease) {
-        return {
+        versions.push({
           version: version,
           prerelease: release.isPreRelease()
-        }
+        });
       } else if (!release.isPreRelease()) {
-        return {
+        versions.push({
           version: version,
           prerelease: false
-        }
+        });
       }
     }
-    return undefined;
-  });
+    return versions;
+  }, []);
 
-  return allVersions.filter((version) => {return version !== undefined});
+  return allVersions;
 }
 
 export async function getLatestVersion(apiClient: any, allowPrerelease: boolean = false) {

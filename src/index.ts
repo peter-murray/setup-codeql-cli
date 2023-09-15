@@ -1,25 +1,19 @@
 import * as core from '@actions/core';
-import { Octokit } from '@octokit/rest';
+import { getOctokit } from '@actions/github';
+import { getCodeQLCachePath } from './toolcache';
 
 async function run(): Promise<void> {
   try {
     const token = getRequiredInputValue('token');
+    const version = core.getInput('version') || 'latest';
 
-    const generator = new ReportGenerator({
-      repository: getRequiredInputValue('repository'),
-      octokit: new Octokit({auth: token}),
-
-      sarifReportDirectory: getRequiredInputValue('sarifReportDir'),
-      outputDirectory: getRequiredInputValue('outputDir'),
-
-      templating: {
-        name: 'summary'
-      }
-    });
-
-    const file = await generator.run();
-    console.log(file);
-  } catch (err) {
+    const apiClient = getOctokit(token);
+    const path = await getCodeQLCachePath(apiClient, version);
+    if (path) {
+      core.addPath(path);
+      core.setOutput('codeql_path', path);
+    }
+  } catch (err: any) {
     core.setFailed(err.message);
   }
 }

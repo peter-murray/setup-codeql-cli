@@ -1,0 +1,33 @@
+name: Testing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test_version:
+    strategy:
+      matrix:
+        version:
+          - latest
+          - '2.14.5'
+          - '2.13.1'
+          - '2.12.7'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout action
+        uses: actions/checkout@v3
+
+      - name: Setup CodeQL
+        id: setup_codeql
+        uses: ./
+        with:
+          version: ${{ matrix.version }}
+
+      - name: Show path
+        run: echo ${{ steps.setup_codeql.outputs.path }}
+
+      - name: Show version
+        run: codeql --version
+
